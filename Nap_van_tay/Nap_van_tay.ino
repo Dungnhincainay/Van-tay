@@ -14,7 +14,6 @@
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
-#include <Adafruit_Fingerprint.h>
 
 // On Leonardo/Micro or others with hardware serial, use those! #0 is green wire, #1 is white
 // uncomment this line:
@@ -24,6 +23,8 @@
 // pin #2 is IN from sensor (GREEN wire)
 // pin #3 is OUT from arduino  (WHITE wire)
 // comment these two lines if using hardware serial
+
+#include <Adafruit_Fingerprint.h>
 #include <SoftwareSerial.h>
 SoftwareSerial mySerial(2, 3);
 
@@ -36,7 +37,7 @@ void setup()
   Serial.begin(9600);
   while (!Serial);  // For Yun/Leo/Micro/Zero/...
   delay(100);
-  Serial.println("\n\nĐăng ký cảm biến vân tay Adafruit");
+  Serial.println("\n\nChương trình Đăng ký cảm biến vân tay.");
 
   // set the data rate for the sensor serial port
   finger.begin(57600);
@@ -65,12 +66,13 @@ void loop()                     // run over and over again
   Serial.println("Vui lòng nhập số ID (từ 1 đến 127) mà bạn muốn lưu ngón tay này dưới mã ID = ");
   id = readnumber();
   if (id == 0) {// ID #0 not allowed, try again!
+      Serial.println("Nhập số ID > 0 ");
      return;
   }
   Serial.print("Đăng ký ID #");
   Serial.println(id);
   
-  while (!  getFingerprintEnroll() );
+  while (! getFingerprintEnroll() );
 }
 
 uint8_t getFingerprintEnroll() {

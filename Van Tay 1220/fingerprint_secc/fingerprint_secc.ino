@@ -54,8 +54,8 @@ void setup()
 
 void loop()                     // run over and over again
 {
-     lcd.setCursor(0, 1); 
-       lcd.print("  PLACE FINGER  ");
+    lcd.setCursor(0, 1); 
+    lcd.print("  PLACE FINGER  ");
   getFingerprintIDez();
   delay(50);            //don't ned to run this at full speed.
 }
