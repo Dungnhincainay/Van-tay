@@ -27,7 +27,8 @@
 #include <Adafruit_Fingerprint.h>
 #include <SoftwareSerial.h>
 SoftwareSerial mySerial(2, 3);
-
+// pin #2 is IN from sensor (GREEN wire)
+// pin #3 is OUT from arduino  (WHITE wire)
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 
 uint8_t id;
@@ -38,21 +39,21 @@ void setup()
   while (!Serial);  // For Yun/Leo/Micro/Zero/...
   delay(100);
   Serial.println("\n\nChương trình Đăng ký cảm biến vân tay.");
-
   // set the data rate for the sensor serial port
   finger.begin(57600);
   
   if (finger.verifyPassword()) {
-    Serial.println("Đã tìm thấy cảm biến vân tay!");
+    Serial.println("Đã kết nối cảm biến !");
   } else {
-    Serial.println("Không tìm thấy cảm biến vân tay :(");
-    while (1) { delay(1); }
+    Serial.println("Lỗi cảm biến :(");
+    while (1) { 
+      delay(10); 
+    }
   }
 }
 
 uint8_t readnumber(void) {
   uint8_t num = 0;
-  
   while (num == 0) {
     while (! Serial.available());
     num = Serial.parseInt();
@@ -60,25 +61,26 @@ uint8_t readnumber(void) {
   return num;
 }
 
-void loop()                     // run over and over again
+void loop()      // run over and over again
 {
   Serial.println("Sẵn sàng đăng ký dấu vân tay!");
   Serial.println("Vui lòng nhập số ID (từ 1 đến 127) mà bạn muốn lưu ngón tay này dưới mã ID = ");
   id = readnumber();
   if (id == 0) {// ID #0 not allowed, try again!
-      Serial.println("Nhập số ID > 0 ");
+      Serial.println("Vui lòng Nhập ID > 0 ");
      return;
   }
   Serial.print("Đăng ký ID #");
   Serial.println(id);
-  
   while (! getFingerprintEnroll() );
 }
 
 uint8_t getFingerprintEnroll() {
 
   int p = -1;
-  Serial.print("Đang đợi ngón tay hợp lệ để đăng ký là #"); Serial.println(id);
+  Serial.print("Đang đợi ngón tay hợp lệ để đăng ký là #"); 
+  Serial.println(id);
+
   while (p != FINGERPRINT_OK) {
     p = finger.getImage();
     switch (p) {
@@ -125,12 +127,14 @@ uint8_t getFingerprintEnroll() {
   }
   
   Serial.println("Xoá dấu vân tay");
-  delay(2000);
+  delay(1000);
+
   p = 0;
   while (p != FINGERPRINT_NOFINGER) {
     p = finger.getImage();
   }
-  Serial.print("ID "); Serial.println(id);
+  Serial.print("ID "); 
+  Serial.println(id);
   p = -1;
   Serial.println("Đặt lại cùng một ngón tay");
   while (p != FINGERPRINT_OK) {
@@ -195,7 +199,9 @@ uint8_t getFingerprintEnroll() {
     return p;
   }   
   
-  Serial.print("ID "); Serial.println(id);
+  Serial.print("ID "); 
+  Serial.println(id);
+  
   p = finger.storeModel(id);
   if (p == FINGERPRINT_OK) {
     Serial.println("Đã lưu trữ !");

@@ -18,7 +18,9 @@
 #include <Adafruit_Fingerprint.h>
 #include <SoftwareSerial.h>
 #include <LiquidCrystal.h>
+
 int getFingerprintIDez();
+
 LiquidCrystal lcd(4,5,6,7,8,9);
 // pin #2 is IN from sensor (GREEN wire)
 // pin #3 is OUT from arduino  (WHITE wire)
@@ -31,16 +33,16 @@ Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 void setup()  
 {
   pinMode(10,OUTPUT);
-   pinMode(11,OUTPUT);
-    lcd.begin(16, 2);
-    lcd.display();
- lcd.print("SECURITY SYSTEM");
+  pinMode(11,OUTPUT);
+  
+  lcd.begin(16, 2);
+  lcd.display();
+  lcd.print("SECURITY SYSTEM");
   while (!Serial);  // For Yun/Leo/Micro/Zero/...
   
   Serial.begin(9600);
   Serial.println("Adafruit finger detect test");
-
-  // set the data rate for the sensor serial port
+ 
   finger.begin(57600);
   
   if (finger.verifyPassword()) {
@@ -54,8 +56,8 @@ void setup()
 
 void loop()                     // run over and over again
 {
-    lcd.setCursor(0, 1); 
-    lcd.print("  PLACE FINGER  ");
+  lcd.setCursor(0, 1); 
+  lcd.print("  PLACE FINGER  ");
   getFingerprintIDez();
   delay(50);            //don't ned to run this at full speed.
 }
