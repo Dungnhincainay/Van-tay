@@ -16,6 +16,8 @@ int Van_tay;
 int led = 6;
 int flag= 0;
 int ledState = LOW;
+int touchStatus = LOW;
+byte Status = LOW;
 unsigned long Ago = 0;
 unsigned long Now = 0;
 const long Set_time = 300; // Thời gian đèn led nhấp nháy
@@ -23,41 +25,19 @@ const long Set_time = 300; // Thời gian đèn led nhấp nháy
 void ICACHE_RAM_ATTR Tim_Van_Tay(){
   
   digitalWrite(12, HIGH);   // Đèn led sáng
-  
-}
-
-void Start_Up(){
-
-  
-  finger.getTemplateCount();
-  Serial.print("Cam bien chua "); 
-  Serial.print(finger.templateCount); 
-  Serial.println(" mau van tay.");
-  Serial.println("Dang doi mau van tay hop le ...");
-  
-  lcd.setCursor(0,0);
-  lcd.print("Da ket noi...");
-  lcd.setCursor(0,1);
-  lcd.print(".....");
-  delay(700);
-  lcd.init(); // Xoa toan bo LCD
-  lcd.setCursor(0,0);
-  lcd.print("Cham tay vao");
-  lcd.setCursor(0,1);
-  lcd.print("Cam bien......");
+  touchStatus = HIGH;
 }
 
 void setup()  
 {
   Serial.begin(9600);
-  pinMode(5, INPUT); 
+  pinMode(5, INPUT);      // Touch
 
-  pinMode(6, OUTPUT);     // Xuất tín hiệu
-  pinMode(9, OUTPUT);     // Xuất tín hiệu
-  pinMode(10, OUTPUT);    // Xuất tín hiệu
-  pinMode(11, OUTPUT);    // Xuất tín hiệu
+  pinMode(9, OUTPUT);     // Cop
+  pinMode(10, OUTPUT); 
+  pinMode(11, OUTPUT);    // Khoa
   pinMode(12, OUTPUT);    // real time
-  pinMode(13, OUTPUT);    // Touch
+  pinMode(13, OUTPUT);    // Led
   
   
   //pinMode(INTERRUPT_PIN, INPUT_PULLUP);                   // CHÚ Ý 2 DÒNG NÀY_____Khai báo Ngắt
@@ -114,9 +94,12 @@ void nhap_nhay()
 void loop()            // run over and over again
 {
   //int buttonStatus = digitalRead(5);    //Đọc trạng thái button
-  if (digitalRead(5)){  // Phát hiện chạm
+  if (touchStatus){  // Phát hiện chạm
     nhap_nhay();
+    touchStatus = Low;
+    digitalWrite(12, LOW);
   }
+  digitalWrite(11, Status);
 
   Now = millis();                 // Nhấp nháy led
   if (Now - Ago >= Set_time) {    // Nhấp nháy led
@@ -127,11 +110,12 @@ void loop()            // run over and over again
       ledState = LOW;             // Nhấp nháy led
     }                             // Nhấp nháy led
     digitalWrite(led, ledState);      
+  }
 
   getFingerprintIDez();
   delay(50);            //don't ned to run this at full speed.
   
-  if (Van_tay== -1){      //  Tắt tất cả
+  if (Van_tay< 0){      //  Tắt tất cả
     digitalWrite(9,LOW);
     digitalWrite(10,LOW);
     digitalWrite(11,LOW);
@@ -140,17 +124,17 @@ void loop()            // run over and over again
     delay(500);
     digitalWrite(12,LOW);
   }
-  if (Van_tay>5){
+  if (Van_tay>=5){
     if((Van_tay/10)==1){  // Mở khoá
-      digitalWrite(11, HIGH);
-      delay(500);
-      digitalWrite(11,LOW);
+      Status = !Status;
+      digitalWrite(11, Status);
+      delay(2000);
     }else{
       if((Van_tay/10)==2){  // Mở Cốp
       digitalWrite(9,HIGH);
       delay(500);
       digitalWrite(9,LOW);
-      }else{
+      }else{              // Bat den
         digitalWrite(10,HIGH);
         delay(500);
         digitalWrite(10,LOW);
@@ -158,6 +142,27 @@ void loop()            // run over and over again
     }
   }
   
+}
+
+
+void Start_Up(){
+
+  finger.getTemplateCount();
+  Serial.print("Cam bien chua "); 
+  Serial.print(finger.templateCount); 
+  Serial.println(" mau van tay.");
+  Serial.println("Dang doi mau van tay hop le ...");
+  
+  lcd.setCursor(0,0);
+  lcd.print("Da ket noi...");
+  lcd.setCursor(0,1);
+  lcd.print(".....");
+  delay(700);
+  lcd.init(); // Xoa toan bo LCD
+  lcd.setCursor(0,0);
+  lcd.print("Cham tay vao");
+  lcd.setCursor(0,1);
+  lcd.print("Cam bien......");
 }
 
 uint8_t getFingerprintID() {
@@ -237,7 +242,7 @@ int getFingerprintIDez() {
   
   // found a match!
   Van_tay = finger.fingerID;
-  Serial.print("ID Tìm thấy #"); Serial.print(finger.fingerID); 
+  Serial.print(" ID Tìm thấy #"); Serial.print(finger.fingerID); 
   Serial.print(" với độ tin cậy là "); Serial.println(finger.confidence);
 
   lcd.init();
